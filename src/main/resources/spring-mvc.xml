@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!--配置自动扫描的包-->
+    <context:component-scan base-package="com.kbk"/>
+
+    <!-- 开启springMVC的注解驱动，使得url可以映射到对应的controller -->
+<!--    <mvc:annotation-driven />会自动注册RequestMappingHandlerMapping与RequestMappingHandlerAdapter两个Bean,-->
+<!--    这是Spring MVC为@Controller分发请求所必需的，并且提供了数据绑定支持，-->
+<!--    @NumberFormatannotation支持，@DateTimeFormat支持,@Valid支持读写XML的支持（JAXB）和读写JSON的支持（默认Jackson）等功能-->
+    <mvc:annotation-driven />
+
+    <!--配置视图解析器:如何把handle方法返回值解析为实际的物理视图-->
+    <!--
+    根据 Controller 的方法返回的字符串或者 ModelView，找到对应的视图（页面），
+    可以在视图中加入 EL 表达式等代码绑定数据
+    InternalResourceViewResolver 包含两个参数：
+    prefix 匹配前缀
+    suffix 匹配后缀
+    -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+<!--    &lt;!&ndash;start:使用Jackson 2.x的配置，需要导入的jar包：jackson-core-xxx.jar、jackson-annotations-xxx.jar、jackson-databind-xxx.jar&ndash;&gt;-->
+<!--    &lt;!&ndash;通过处理器映射DefaultAnnotationHandlerMapping来开启支持@Controller注解&ndash;&gt;-->
+<!--    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>-->
+<!--    &lt;!&ndash;通过处理器适配器AnnotationMethodHandlerAdapter来开启支持@RequestMapping注解&ndash;&gt;-->
+<!--    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">-->
+<!--        <property name="messageConverters">-->
+<!--            <list>-->
+<!--                &lt;!&ndash; 设置返回字符串编码 &ndash;&gt;-->
+<!--                <bean class="org.springframework.http.converter.StringHttpMessageConverter">-->
+<!--                    <property name="supportedMediaTypes">-->
+<!--                        <list>-->
+<!--                            <value>application/json;charset=UTF-8</value>-->
+<!--                        </list>-->
+<!--                    </property>-->
+<!--                </bean>-->
+<!--                &lt;!&ndash; json转换器 &ndash;&gt;-->
+<!--                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">-->
+<!--                    <property name="supportedMediaTypes">-->
+<!--                        <list>-->
+<!--                            <value>application/json;charset=UTF-8</value>-->
+<!--                        </list>-->
+<!--                    </property>-->
+<!--                </bean>-->
+<!--            </list>-->
+<!--        </property>-->
+<!--    </bean>-->
+
+
+</beans>

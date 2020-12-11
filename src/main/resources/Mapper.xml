@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kbk.dao.StudentDao">
+
+    <!--    设置实体类变量名与数据库字段名的映射关系-->
+    <!--    使用时，需将 resultType 改为 resultMap ，-->
+    <!--    双引号中填写resultMap的 id 名。-->
+    <resultMap id="studentResultMap" type="student">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="studentId" column="studentId"/>
+        <result property="gender" column="gender"/>
+        <result property="birthday" column="birthday"/>
+        <result property="created_time" column="created_time"/>
+        <result property="updated_time" column="updated_time"/>
+    </resultMap>
+
+
+    <!--根据id查询-->
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="studentResultMap">
+
+        select *from student where id=#{id}
+    </select>
+
+    <!-- 根据条件查询-->
+    <select id="findStudentByCondition"  resultMap="studentResultMap">
+        select id, name, studentId, gender, birthday, created_time, updated_time  from student
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null" >
+                and name = #{name}
+            </if>
+        </where>
+    </select>
+
+
+    <!--    遍历结果集-->
+    <select id="findStudentByIdList"  resultMap="studentResultMap">
+        select * from student
+        <where>
+            <foreach collection="list" open="id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+
+        </where>
+    </select>
+
+
+    <!--    当参数id有值时优先使用id查询-->
+    <!--    当没有id时就去判断用户名是否有值，如果有值就根据用户名全配-->
+    <!--    如果用户名也没有值，就是sql查询为空-->
+    <select id="selectStudentByIdOrName" resultType="com.kbk.model.Student">
+        select * from student
+        <where>
+            <choose>
+                <when test="id != null">
+                    and id = #{id}
+                </when>
+
+                <when test="name != null">
+                    and name = #{name}
+                </when>
+                <otherwise>
+                    and 1=2
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <!--  新增用户  -->
+    <insert id="insertStudent" parameterType="com.kbk.model.Student">
+        insert into student(id, studentId, name, gender, birthday, created_time, updated_time)
+        value (#{id}, #{studentId}, #{name}, #{gender}, #{birthday}, #{created_time}, #{updated_time})
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            select last_insert_id()
+        </selectKey>
+    </insert>
+
+    <!--  删除用户  -->
+    <delete id="deleteById" parameterType="com.kbk.model.Student">
+        delete from student where id=#{id}
+    </delete>
+
+<!--    &lt;!&ndash; 修改用户&ndash;&gt;-->
+<!--    <update id="updateStudent" parameterType="com.kbk.model.Student">-->
+<!--        update student set name = #{name},gender = #{gender},birthday = #{birthday} where id = #{id}-->
+<!--    </update>-->
+
+    <!-- 根据id修改用户-->
+    <update id="updateById" parameterType="com.kbk.model.Student">
+        update student
+        <set>
+            <if test="name!=null">name = #{name},</if>
+            <if test="studentId!=null">studentId=#{studentId},</if>
+            <if test="gender!=null">gender=#{gender},</if>
+            <if test="birthday!=null">birthday=#{birthday},</if>
+            <if test="created_time!=null">created_time=#{created_time},</if>
+            <if test="updated_time!=null">updated_time=#{updated_time},</if>
+        </set>
+        where id=#{id}
+        <!--根据id更新数据-->
+    </update>
+
+
+
+</mapper>
