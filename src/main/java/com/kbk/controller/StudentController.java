@@ -4,6 +4,7 @@ package com.kbk.controller;
 import com.kbk.model.Student;
 import com.kbk.rest.Restful;
 import com.kbk.service.StudentService;
+import net.sf.json.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -38,13 +39,17 @@ public class StudentController {
 //    produces:    指定返回的内容类型，仅当request请求头中的(Accept)类型中包含该指定类型才返回
 //    params： 指定request中必须包含某些参数值是，才让该方法处理
 //    headers： 指定request中必须包含某些指定的header值，才能让该方法处理请求
-    @RequestMapping(value = "/POSTStudent", method = RequestMethod.POST, consumes = "application/json")
+    @RequestMapping(value = "", method = RequestMethod.POST, consumes = "application/json")
     public @ResponseBody
+    //@ResponseBody 是将下面方法返回的参数（一般地, 返回的数据不是某个具体的视图页面, 而是某种格式的数据(json, xml等)），
+    // 转换为指定格式后, 写入到response对象的的body数据区。因为开启了springMVC的注解驱动，所以返回的是json格式的数据
+
     //告诉spring-mvc框架  不进行视图跳转（不用跳到jsp去）   直接进行数据响应（直接返回当前数据）
     Map<String, Object> post(@RequestBody Student student) {
+        //@RequestBody 用于读取request请求的body部分的数据（浏览器传输过来的），解析后，把相应的数据绑定到请求处理方法的参数上
         //判断学生姓名是否为空
-        if (student.getName().equals("")) {
-            return Restful.set(404, messageSource.getMessage("name.null", null, null));
+        if (student.getName() == null) {
+            return Restful.set(400, messageSource.getMessage("name.null", null, null));
         } else {
             studentService.insertStudent(student);
             return Restful.set(200, "添加成功", student);
@@ -52,22 +57,34 @@ public class StudentController {
 
     }
 
+    @RequestMapping(value = "", method = RequestMethod.POST)
+    public @ResponseBody Map<String, Object> postParam(Student student){
+
+        //@RequestParam 用于读取request请求的Param部分的数据（浏览器传输过来的），解析后，把相应的数据绑定到请求处理方法的参数上
+        //判断学生姓名是否为空
+        if (student.getName() == null) {
+            return Restful.set(400, messageSource.getMessage("name.null", null, null));
+        } else {
+            studentService.insertStudent(student);
+            return Restful.set(200, "添加成功", student);
+        }
+    }
+
+
+
     /**
      * get接口
      *
      * @param id
      * @return
      */
-    @RequestMapping(value = "/GETStudent/{id}", method = RequestMethod.GET)
-    public @ResponseBody
-    Map<String, Object> get(@PathVariable Integer id) {
+    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    public @ResponseBody Map<String, Object> get(@PathVariable Integer id) {
         //判断学生是否存在
         Student student = studentService.selectById(id);
         if (null == student) {
-            System.out.println("况博凯");
-            return Restful.set(404, messageSource.getMessage("id.null", null, null));
+            return Restful.set(400, messageSource.getMessage("id.null", null, null));
         } else {
-            System.out.println("魏思静");
             return Restful.set(200, "查找学生成功", student);
         }
 
@@ -79,12 +96,11 @@ public class StudentController {
      * @param student
      * @return
      */
-    @RequestMapping(value = "/PUTStudent", method = RequestMethod.PUT, consumes = "application/json")
-    public @ResponseBody
-    Map<String, Object> put(@RequestBody Student student) {
+    @RequestMapping(value = "", method = RequestMethod.PUT, consumes = "application/json")
+    public @ResponseBody Map<String, Object> put(@RequestBody Student student) {
         //判断要更新的学生是否存在，存在就更新
         if (null == studentService.selectById(student.getId())) {
-            return Restful.set(404, messageSource.getMessage("id.null", null, null));
+            return Restful.set(400, messageSource.getMessage("id.null", null, null));
         } else {
             studentService.updateById(student);
             return Restful.set(200, "更新数据成功");
@@ -97,13 +113,12 @@ public class StudentController {
      * @param id
      * @return
      */
-    @RequestMapping(value = "/DELETEStudent/{id}", method = {RequestMethod.DELETE, RequestMethod.GET})
-    public @ResponseBody
-    Map<String, Object> delete(@PathVariable("id") int id) {
+    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    public @ResponseBody Map<String, Object> delete(@PathVariable("id") int id) {
         //
         if (null == studentService.selectById(id)) {
             System.out.println("NULL");
-            return Restful.set(404, messageSource.getMessage("delete.null", null, null));
+            return Restful.set(400, messageSource.getMessage("delete.null", null, null));
         } else {
             Student student = new Student();
             student.setId(id);
@@ -115,7 +130,7 @@ public class StudentController {
     /**
      * 测试json传入数据
      */
-    @RequestMapping(value = "/GETJsonTest", method = RequestMethod.GET)
+    @RequestMapping(value = "/json", method = RequestMethod.GET)
     public ModelAndView jsonTest(ModelAndView mav) {
         List<Student> list = studentService.findStudentByIdList(Arrays.asList(1,4,5));
         System.out.println("==========================");
